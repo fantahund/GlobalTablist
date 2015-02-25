@@ -18,13 +18,12 @@
  */
 package codecrafter47.globaltablist;
 
-import lombok.Getter;
+import java.util.logging.Level;
+
 import net.cubespace.Yamler.Config.InvalidConfigurationException;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
-
-import java.util.logging.Level;
 
 /**
  * Main Class of BungeeTabListPlus
@@ -33,18 +32,16 @@ import java.util.logging.Level;
  */
 public class GlobalTablist extends Plugin {
 
-    /**
-     * Holds an INSTANCE of itself if the plugin is enabled
-     */
-    @Getter()
-    private static GlobalTablist INSTANCE;
     private CustomizationHandler customizationHandler;
 
     /**
      * provides access to the configuration
      */
-    @Getter
     private MainConfig config;
+
+    public MainConfig getConfig() {
+        return config;
+    }
 
     private final TabListListener listener = new TabListListener(this);
 
@@ -57,13 +54,11 @@ public class GlobalTablist extends Plugin {
         try {
             Class.forName("net.md_5.bungee.api.Title");
         } catch (ClassNotFoundException ex) {
-            getLogger().severe(
-                    "This plugin does not support your BungeeCord version");
+            getLogger().severe("This plugin does not support your BungeeCord version");
             getLogger().severe("Please use build #996 or above");
             return;
         }
 
-        INSTANCE = this;
         try {
             config = new MainConfig(this);
         } catch (InvalidConfigurationException ex) {
@@ -73,10 +68,11 @@ public class GlobalTablist extends Plugin {
             return;
         }
 
-        if(config.showHeaderFooter)customizationHandler = new CustomizationHandler(this);
+        if (config.showHeaderFooter) {
+            customizationHandler = new CustomizationHandler(this);
+        }
 
-        ProxyServer.getInstance().getPluginManager().registerListener(this,
-                listener);
+        ProxyServer.getInstance().getPluginManager().registerListener(this, listener);
     }
 
     /**
@@ -88,10 +84,6 @@ public class GlobalTablist extends Plugin {
     }
 
     public void reportError(Throwable th) {
-        getLogger().log(Level.WARNING,
-                ChatColor.RED + "An internal error occured! Please send the "
-                        + "following stacktrace to the developer in order to help"
-                        + " resolving the problem",
-                th);
+        getLogger().log(Level.WARNING, ChatColor.RED + "An internal error occured! Please send the " + "following stacktrace to the developer in order to help" + " resolving the problem", th);
     }
 }

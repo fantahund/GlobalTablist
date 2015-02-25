@@ -50,12 +50,25 @@ public class GlobalTablistHandler extends TabList {
 
     @Override
     public void onUpdate(PlayerListItem pli) {
+        System.out.println("onUpdate");
+        for (Item i : pli.getItems()) {
+            if (i.getUuid().version() != 4) {
+                // NPC
+                PlayerListItem out = new PlayerListItem();
+                out.setAction(pli.getAction());
+                out.setItems(new Item[] { i });
+                player.unsafe().sendPacket(out);
+                System.out.println("Tablistdings (NPC): " + i.getUuid().version() + " Action: " + pli.getAction() + " Name: " + i.getUsername());
+            } else {
+                // System.out.println("Tablistdings: " + i.getUuid().version() + " Action: " + pli.getAction() + " Name: " + i.getUsername());
+            }
+        }
         // It's a global tablist - we don't pass packets from the server
     }
 
     @Override
     public void onPingChange(int i) {
-        if(plugin.getConfig().updatePing) {
+        if (plugin.getConfig().updatePing) {
             if (lastPing - i > 50 || lastPing - i < 50) {
                 PlayerListItem pli = new PlayerListItem();
                 pli.setAction(PlayerListItem.Action.UPDATE_LATENCY);
@@ -77,6 +90,7 @@ public class GlobalTablistHandler extends TabList {
 
     @Override
     public void onConnect() {
+        // System.out.println("onConnect " + getPlayer().getName());
         // send players
         for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
             sendPlayerSlot(p, getPlayer());
@@ -92,9 +106,13 @@ public class GlobalTablistHandler extends TabList {
 
     @Override
     public void onDisconnect() {
+        //  System.out.println("onDisconnect " + getPlayer().getName());
+        //  System.out.println(plugin.getProxy().getPlayer(getPlayer().getUniqueId()) == getPlayer());
         // remove player
-        for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
-            removePlayerSlot(getPlayer(), p);
+        if (plugin.getProxy().getPlayer(getPlayer().getUniqueId()) == getPlayer()) {
+            for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
+                removePlayerSlot(getPlayer(), p);
+            }
         }
     }
 
@@ -107,6 +125,7 @@ public class GlobalTablistHandler extends TabList {
     }
 
     protected void sendPlayerSlot(ProxiedPlayer player, ProxiedPlayer receiver) {
+        // System.out.println("Sending Add " + player.getName() + " to " + receiver.getName());
         String text = player.getDisplayName();
 
         if (!is18Client(receiver) && text.length() > 16) {
@@ -125,23 +144,22 @@ public class GlobalTablistHandler extends TabList {
             item.setUuid(player.getUniqueId());
             item.setProperties(new String[0][0]);
             if (isPremium(receiver)) {
-                LoginResult loginResult = ((UserConnection) player).
-                        getPendingConnection().getLoginProfile();
+                LoginResult loginResult = ((UserConnection) player).getPendingConnection().getLoginProfile();
                 if (loginResult != null) {
                     for (LoginResult.Property s : loginResult.getProperties()) {
                         if (s.getName().equals("textures")) {
-                            item.setProperties(new String[][]{{"textures", s.
-                                    getValue(), s.getSignature()}});
+                            item.setProperties(new String[][] { { "textures", s.getValue(), s.getSignature() } });
                         }
                     }
                 }
             }
         }
-        pli.setItems(new Item[]{item});
+        pli.setItems(new Item[] { item });
         receiver.unsafe().sendPacket(pli);
     }
 
     private void removePlayerSlot(ProxiedPlayer player, ProxiedPlayer receiver) {
+        // System.out.println("Sending Remove " + player.getName() + " to " + receiver.getName());
         PlayerListItem pli = new PlayerListItem();
         pli.setAction(PlayerListItem.Action.REMOVE_PLAYER);
         Item item = new Item();
@@ -155,7 +173,7 @@ public class GlobalTablistHandler extends TabList {
             }
             item.setDisplayName(text);
         }
-        pli.setItems(new Item[]{item});
+        pli.setItems(new Item[] { item });
         receiver.unsafe().sendPacket(pli);
     }
 }

@@ -18,41 +18,36 @@
  */
 package codecrafter47.globaltablist;
 
+import java.lang.reflect.Field;
+
 import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-import java.lang.reflect.Field;
-
 public class TabListListener implements Listener {
 
     private final GlobalTablist plugin;
+    private Field tabListHandler;
 
     public TabListListener(GlobalTablist plugin) {
         this.plugin = plugin;
-    }
 
-    @EventHandler
-    public void onPlayerJoin(PostLoginEvent e) throws NoSuchFieldException,
-            IllegalArgumentException, IllegalAccessException {
-        if (plugin.getConfig().useGlobalTablist) {
-            Class cplayer = UserConnection.class;
-            Field tabListHandler = cplayer.getDeclaredField("tabListHandler");
+        try {
+            Class<UserConnection> cplayer = UserConnection.class;
+            tabListHandler = cplayer.getDeclaredField("tabListHandler");
             tabListHandler.setAccessible(true);
-            tabListHandler.set(e.getPlayer(), new GlobalTablistHandler(e.getPlayer(), plugin));
+        } catch (SecurityException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @EventHandler
-    public void onDevJoin(PostLoginEvent e) {
-        if (plugin.getDescription().getAuthor().equalsIgnoreCase(e.getPlayer().
-                getName())) {
-            e.getPlayer().sendMessage(new ComponentBuilder("Hello " + e.
-                    getPlayer().getName() + ", this server uses your plugin: " + plugin.
-                    getDescription().getName()).color(ChatColor.AQUA).create());
+    public void onPlayerJoin(PostLoginEvent e) throws IllegalArgumentException, IllegalAccessException {
+        if (plugin.getConfig().useGlobalTablist) {
+            tabListHandler.set(e.getPlayer(), new GlobalTablistHandler(e.getPlayer(), plugin));
         }
     }
 }
