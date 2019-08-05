@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>net.cubespace</groupId>
-            <artifactId>yamler-bungee</artifactId>
+            <artifactId>Yamler-parent</artifactId>
             <version>2.4.0.</version>
         </dependency>
         <dependency>
