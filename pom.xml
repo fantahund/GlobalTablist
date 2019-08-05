@@ -38,14 +38,14 @@
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-proxy</artifactId>
-            <version>1.8-SNAPSHOT</version>
+            <version>1.14-SNAPSHOT</version>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.cubespace</groupId>
             <artifactId>yamler-bungee</artifactId>
-            <version>2.2.3</version>
+            <version>2.4.0.</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
